@@ -19,6 +19,7 @@ Opens all csv files in dirname
 - numpy
 - cv2
 - matplotlib
+
 Install with pip or any other preferred way
 ## hid2sticklog.py
 The tool to grab logs from the radio handset connected to the computer e.g. when flying in a simulator
