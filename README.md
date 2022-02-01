@@ -16,14 +16,14 @@ python sticklog2heatmap.py [dirname]
 ```
 Opens all csv files in dirname
 ### Requirements:
-*numpy
-*cv2
-*matplotlib
+- numpy
+- cv2
+- matplotlib
 Install with pip or any other preferred way
 ## hid2sticklog.py
 The tool to grab logs from the radio handset connected to the computer e.g. when flying in a simulator
 ### Usage:
 Simply run the script with python. If threre's more than one supported device in system the script will prompt.
 ### Requirements:
-*hid from pip or anywhere else
-*hidapi library file in the same directory depending on your platform (e.g. hidapi.dll for windows)
+- hid from pip or anywhere else
+- hidapi library file in the same directory depending on your platform (e.g. hidapi.dll for windows)
