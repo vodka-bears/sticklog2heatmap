@@ -27,4 +27,4 @@ The tool to grab logs from the radio handset connected to the computer e.g. when
 Simply run the script with python. If threre's more than one supported device in system the script will prompt.
 ### Requirements:
 - hid from pip or anywhere else
-- hidapi library file in the same directory depending on your platform (e.g. hidapi.dll for windows)
+- [hidapi library](https://github.com/libusb/hidapi/releases) file in the same directory depending on your platform (e.g. hidapi.dll for windows)
