@@ -1,9 +1,12 @@
 import numpy as np
 import cv2 as cv
-from sys import argv
+from sys import argv, exit
+from math import log2
 import csv
 import matplotlib
 import matplotlib.pyplot as plt
+from os import listdir
+from os.path import isfile, isdir
 
 def get_simple_cross(size, colored = True):
 	if colored:
@@ -17,39 +20,36 @@ def get_simple_cross(size, colored = True):
 				ret_arr[rownum][colnum] = [0, 0, 0] if colored else 0
 				
 	return ret_arr
-
-
-def read_sticks(filename):
+	
+def read_sticks_multiple(filenames):
 	ail = []
 	ele = []
 	thr = []
 	rud = []
-	with open(filename) as csv_with_logs:
-		csvreader = csv.DictReader(csv_with_logs)
-		for entry in csvreader:
-			ail.append(int(entry['Ail']))
-			ele.append(int(entry['Ele']))
-			thr.append(int(entry['Thr']))
-			rud.append(int(entry['Rud']))
+	for filename in filenames:
+		with open(filename) as csv_with_logs:
+			csvreader = csv.DictReader(csv_with_logs)
+			for entry in csvreader:
+				ail.append(int(entry['Ail']))
+				ele.append(int(entry['Ele']))
+				thr.append(int(entry['Thr']))
+				rud.append(int(entry['Rud']))
 	return {'Ail' : np.array(ail), 'Ele' : np.array(ele), 'Thr' : np.array(thr), 'Rud' : np.array(rud)}
-	
-def to_freqlist(arrayof, minval, maxval):
-	pos, freq = np.unique(arrayof, return_counts=True)
-	full_pos, full_freq = [], []
-	for i in range(minval, maxval + 1):
-		full_pos.append(i)
-		if i in pos.tolist():
-			full_freq.append(freq[pos.tolist().index(i)])
-		else:
-			full_freq.append(0)
-	return full_pos, full_freq
 	
 def to_2d_freqlist(abscissa, ordinate, minval, maxval):
 	ao_pairs = zip(abscissa.tolist(), ordinate.tolist())
 	freq_array = np.zeros((maxval - minval + 1, maxval - minval + 1), dtype = np.uint64)
+	freq_array_log = freq_array
 	for i,j in ao_pairs:
 		freq_array[i - minval][j - minval] += 1
 	return freq_array
+	
+def freqlist_to_log(freq_array):
+	freq_array_log = freq_array
+	for x in range(freq_array.shape[0]):
+		for y in range(freq_array.shape[1]):
+			freq_array_log[x,y] = log2(1 + (freq_array[x,y]))
+	return freq_array_log
 				
 def lower_dimension_of_sticklog(vals, min_big, max_big, min_small, max_small):
 	newvals = []
@@ -81,7 +81,22 @@ def main():
 	figsize = 300
 	sep_pixel = 0
 	sep_width = 10
-	stick_log = read_sticks(argv[1])
+	if argv[1:]:
+		if len(argv[1:]) == 1 and isdir(argv[1:][0]):
+			dirname = argv[1:][0]
+			dirname = dirname.lstrip('.')
+			dirname = dirname.strip('\\/')
+			fnames_st1 = listdir(dirname)
+			if not fnames_st1:
+				print(f'{dirname} is empty')
+				exit(1)
+			fnames_st2 = [f'{argv[1:][0]}\{a}' for a in fnames_st1 if a[-4:] == '.csv']
+			fnames = [a for a in fnames_st2 if isfile(a)]
+		else:
+			fnames = argv[1:]
+	else:
+		fnames = filter(lambda a: isfile(a) and a[-4:] == '.csv', listdir())
+	stick_log = read_sticks_multiple(fnames)
 	ailerons = lower_dimension_of_sticklog(stick_log['Ail'], min_stick, max_stick, min_plot, max_plot)
 	elevators = lower_dimension_of_sticklog(stick_log['Ele'], min_stick, max_stick, min_plot, max_plot)
 	throttles = lower_dimension_of_sticklog(stick_log['Thr'], min_stick, max_stick, min_plot, max_plot)
@@ -89,6 +104,8 @@ def main():
 	freqlist_left = to_2d_freqlist(throttles, rudders, min_plot, max_plot)
 	freqlist_right = to_2d_freqlist(elevators, ailerons, min_plot, max_plot)
 	
+	freqlist_left = freqlist_to_log(freqlist_left)
+	freqlist_right = freqlist_to_log(freqlist_right)
 
 	hm_left = get_heatmap_raw(freqlist_left, min_plot, max_plot)
 	hm_right = get_heatmap_raw(freqlist_right, min_plot, max_plot)
@@ -104,7 +121,7 @@ def main():
 	
 	clean_final = np.concatenate((hm_left_with_cross, sep, hm_right_with_cross), axis = 1)
 	
-	cv.imwrite(argv[1] + '.png', clean_final)
+	cv.imwrite((dirname if 'dirname' in locals() else fnames[0]) + '.png', clean_final)
 		
 	
 if __name__ == "__main__":
