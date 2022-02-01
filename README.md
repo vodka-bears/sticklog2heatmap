@@ -17,7 +17,7 @@ python sticklog2heatmap.py [dirname]
 Opens all csv files in dirname
 ### Requirements:
 - numpy
-- cv2
+- opencv-python
 - matplotlib
 
 Install with pip or any other preferred way
