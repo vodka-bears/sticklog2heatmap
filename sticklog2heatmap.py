@@ -95,7 +95,7 @@ def main():
 		else:
 			fnames = argv[1:]
 	else:
-		fnames = filter(lambda a: isfile(a) and a[-4:] == '.csv', listdir())
+		fnames = [a for a in listdir() if isfile(a) and a[-4:] == '.csv']
 	stick_log = read_sticks_multiple(fnames)
 	ailerons = lower_dimension_of_sticklog(stick_log['Ail'], min_stick, max_stick, min_plot, max_plot)
 	elevators = lower_dimension_of_sticklog(stick_log['Ele'], min_stick, max_stick, min_plot, max_plot)
