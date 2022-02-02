@@ -1,7 +1,7 @@
 # sticklog2heatmap
 Draw a heatmap of RC sticks from OpenTX logs or USB HID device
 ## Important notice
-If using [built binaries](releases/) from here use `sitcklog2heatmap.exe` instead of `python sticklog2heatmap.py`. The same applies for `hid2sticklog.exe`
+If using [built binaries](https://github.com/vodka-bears/sticklog2heatmap/releases) from here use `sitcklog2heatmap.exe` instead of `python sticklog2heatmap.py`. The same applies for `hid2sticklog.exe`
 ## sticklog2heatmap.py
 The tool that draws a png file with the heatmap
 ### Usage:
